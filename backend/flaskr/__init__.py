@@ -209,15 +209,14 @@ def create_app(test_config=None):
   '''
   @app.route('/categories/<int:category_id>/questions')
   def show_questions_by_category(category_id):
-      selection = Question.querry.join(Category,Question.category==Category.id).order_by(Question.id).filter(Question.category == str(category_id)).with_entities(Questions.question, Category.type)
-      current_questions = paginate_questions(request, selection)
+      selection = Question.query.filter(category=str(category_id)).all()
       if len(current_questions) == 0:
           abort(404)
 
       return jsonify({
          'questions': current_questions,
-         'total_Question': len(Question.query.all()),
-         'category': current_questions.type
+         'total_Question': len(selections),
+         'category': Category.query.get(category_id).format()
       }
 
       )
