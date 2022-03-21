@@ -23,11 +23,12 @@ def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
   setup_db(app)
+  CORS(app)
 
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
-  CORS(app, resource={r"*": {"origins": "*"}})
+  cors = CORS(app, resource={r"/api/*": {"origins": "*"}})
 
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
@@ -83,14 +84,18 @@ def create_app(test_config=None):
   @app.route("/questions")
   def retrieve_questions():
       selection = Question.query.order_by(Question.id).all()
-      page = request.args.get('page',1, type=int)
+      page = request.args.get('page', 1, type=int)
       start = (page - 1) * 10
       end = start + 10
       current_questions = selection[start:end]
 
       if len(current_questions) == 0:
           abort(404)
-          
+
+      categories = Category.query.all()
+      categories_dict = {category.id: category.type for category in categories}
+
+
       question_list = []
       for q in current_questions:
           question_list.append({
@@ -105,6 +110,8 @@ def create_app(test_config=None):
               "success": True,
               "questions": question_list,
               "total_questions": len(Question.query.all()),
+              "categories": categories_dict,
+              "current_category": None
           }
       )
 
@@ -195,7 +202,7 @@ def create_app(test_config=None):
   only question that include that string within their question.
   Try using the word "title" to start.
   '''
-  @app.route("/questions/search", methods=["POST"])
+  @app.route("/search", methods=["POST"])
   def search_question():
       body = request.get_json()
 
