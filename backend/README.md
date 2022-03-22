@@ -33,7 +33,10 @@ psql trivia < trivia.psql
 export FLASK_APP=flaskr
 flask run
 ```
-
+To detect changes and restart our server whenever file changes
+```bash
+flask run --reload
+```
 
 ## ToDo Tasks
 These are the files you'd want to edit in the backend:
